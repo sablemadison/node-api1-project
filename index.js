@@ -85,7 +85,7 @@ const changes = req.body;
             if(foundId){
                 Object.assign(foundId, changes);
                 res.status(200).json(foundId);
-            }else {
+            } else {
                 res.status(404).json({errorMessage:"The user with the specified ID does not exist."})
             }
         }
