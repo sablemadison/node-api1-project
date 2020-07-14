@@ -27,7 +27,7 @@ if(req.body.bio && req.body.name){
 //GET
 server.get('/api/users', (req, res) => {
 try {
-    res.json(usersArray)
+    res.status(200).json(usersArray)
 } catch(err) {
     res.status(500).json({errorMessage: "The users information could not be retrieved.", err})
 }
@@ -39,7 +39,7 @@ const {id} = req.params;
 const user = usersArray.find(user => user.id === id);
 try {
     if(user){
-        res.json(user)
+        res.status(200).json(user)
     } else {
         res.status(404).json({message: "The user with the specified ID does not exist."})
     }
@@ -58,7 +58,7 @@ const deleted = usersArray.find(user => user.id === id);
 try {
     if (deleted) {
         usersArray = usersArray.filter(user => user.id !== id);
-        res.json(deleted);
+        res.status(204).json(deleted);
     } else {
         res.status(404).json({message:"The user with the specified ID does not exist"})
     }
@@ -67,30 +67,27 @@ try {
 }
 })
 
-//PATCH
+//PUT
 
-server.patch('/api/users/:id', (req, res) => {
+server.put('/api/users/:id', (req, res) => {
 const {id} = req.params;
+let index = usersArray.findIndex(user => user.id === id)
 const changes = req.body;
-
-    if(!id || !usersArray) {
-        res.status(500).json({
-            errorMessage:"The user information could not be modified."
-        })
-    } else {
-        if(!changes.name && !changes.bio){
-            res.status(400).json({errorMessage:"Please provide name and bio for the user."})
-        } else {
-            let foundId = usersArray.find(user => user.id === id);
-            if(foundId){
-                Object.assign(foundId, changes);
-                res.status(200).json(foundId);
-            }else {
-                res.status(404).json({errorMessage:"The user with the specified ID does not exist."})
-            }
-        }
+try {
+    if(index == -1){
+        res.status(404).json({ message: "The user with the specified ID does not exist." });
     }
-
+    else if (req.body.bio && req.body.name) {
+        usersArray[index] = changes;
+        res.status(200).json(usersArray[index]);
+    }
+    else {
+        res.status(400).json({errorMessage:"Please add a name or bio"})
+    }
+}
+ catch (err){
+ res.status(500).json({ errorMessage: "The user information could not be modified." })
+ }
 
 
 })
